@@ -52,15 +52,6 @@ npx -y skills add meitu/designkit-skills --skill designkit-edit-tools --full-dep
 - `DESIGNKIT_OPENCLAW_AK`（必填）
 - `DESIGNKIT_OPENCLAW_AK_URL`（可选，默认 `https://www.designkit.cn/openClaw`）
 
-## Optional Environment Variables
-
-- `OPENCLAW_API_BASE`（默认 `https://openclaw-designkit-api.meitu.com`）
-- `DESIGNKIT_WEBAPI_BASE`（默认 `https://openclaw-designkit-api.meitu.com/v1`）
-- `OPENCLAW_ASYNC_MAX_WAIT_SEC`
-- `OPENCLAW_ASYNC_INTERVAL_SEC`
-- `OPENCLAW_ASYNC_QUERY_ENDPOINT`
-- `OPENCLAW_REQUEST_LOG`（默认 `1`，可设 `0` 关闭请求日志）
-
 ## Quick Local Check
 
 ```bash
