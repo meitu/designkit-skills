@@ -1,9 +1,9 @@
 ---
 name: designkit-skills
 description: >-
-  美图设计室 DesignKit 能力集合的根入口 Skill。
-  根据用户意图路由到：designkit-edit-tools（通用图片编辑）、
-  designkit-ecommerce-product-kit（电商套图多步）。
+  AI 图片处理与电商商品图生成技能包（美图设计室 DesignKit）。
+  支持抠图去背景、透明底、AI 变清晰/画质修复、商品主图与 Listing 套图生成；
+  根据用户意图路由到 designkit-edit-tools 与 designkit-ecommerce-product-kit。
 requirements:
   credentials:
     - name: DESIGNKIT_OPENCLAW_AK
@@ -24,6 +24,8 @@ requirements:
 
 - 使用 `designkit-edit-tools` 进行通用图片编辑（抠图、变清晰）。
 - 使用 `designkit-ecommerce-product-kit` 进行**电商商品套图**多步流程（商品图后**分两轮对话**依次问卖点、再问配置，再爆款风格与出图；详见子 skill）。
+
+常见可检索关键词（品牌词与功能词并列）：抠图、去背景、透明底、图片增强、画质修复、商品主图、详情图、Listing 套图、亚马逊套图、Temu 套图、1688 套图、DesignKit、美图设计室。
 
 ## Routing Rules
 

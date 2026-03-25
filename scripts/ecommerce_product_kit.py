@@ -5,7 +5,7 @@ DesignKit 电商套图 — webapi 基址默认正式环境，鉴权与 run_comma
 环境变量：
 - DESIGNKIT_OPENCLAW_AK：请求头 X-Openclaw-AK（必填）
 - DESIGNKIT_OPENCLAW_AK_URL：获取/核对 AK 的页面地址，默认 https://www.designkit.cn/openClaw（用于错误提示文案）
-- DESIGNKIT_WEBAPI_BASE：API 根路径，须含版本前缀 /v1；默认 https://openclaw-designkit-api.meitu.com/v1
+- DESIGNKIT_WEBAPI_BASE：仅域名基址（不含版本前缀）；默认 https://openclaw-designkit-api.meitu.com
 """
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional, Tuple
 
-# 可通过 DESIGNKIT_WEBAPI_BASE 覆盖（须含 /v1）
-WEBAPI_BASE = os.environ.get(
+# 可通过 DESIGNKIT_WEBAPI_BASE 覆盖；仅域名，不自动拼版本前缀
+_webapi_base_raw = os.environ.get(
     "DESIGNKIT_WEBAPI_BASE",
-    "https://openclaw-designkit-api.meitu.com/v1",
+    "https://openclaw-designkit-api.meitu.com",
 ).rstrip("/")
-POLICY_URL = "https://strategy.app.meitudata.com/upload/policy"
+WEBAPI_BASE = re.sub(r"/v1/?$", "", _webapi_base_raw)
 
 DEFAULT_OPENCLAW_AK_URL = "https://www.designkit.cn/openClaw"
 
@@ -294,23 +294,25 @@ def _suffix_mime(path: str) -> Tuple[str, str]:
 
 
 def upload_local_image(file_path: str) -> str:
-    from urllib.parse import urlencode
-
     if not os.path.isfile(file_path):
         _json_error(False, "PARAM_ERROR", f"文件不存在: {file_path}", "请检查图片路径")
 
-    suffix, mime = _suffix_mime(file_path)
+    _, mime = _suffix_mime(file_path)
     fname = os.path.basename(file_path)
-    q = urlencode(
-        {
-            "app": "xiuxiu-pro",
-            "count": "1",
-            "suffix": suffix,
-            "type": "image_tmp",
-            "t": "1",
-        }
-    )
-    policy_url_full = f"{POLICY_URL}?{q}"
+
+    getsign_url = f"{WEBAPI_BASE}/maat/getsign?type=openclaw"
+    getsign_code, getsign_resp = _http_request("GET", getsign_url, json_mode=False)
+    if getsign_code < 200 or getsign_code >= 300 or not isinstance(getsign_resp, dict):
+        _json_error(False, "UPLOAD_ERROR", "获取上传签名失败", "请检查网络连接或 API Key 后重试")
+    if getsign_resp.get("code") != 0:
+        _request_log(f"maat getsign rejected: {json.dumps(getsign_resp, ensure_ascii=False)}")
+        _json_error(False, "UPLOAD_ERROR", "获取上传签名失败", "请检查网络连接或 API Key 后重试")
+
+    policy_url_full = str((getsign_resp.get("data") or {}).get("upload_url") or "").strip()
+    if not policy_url_full:
+        _request_log(f"maat getsign missing upload_url: {json.dumps(getsign_resp, ensure_ascii=False)}")
+        _json_error(False, "UPLOAD_ERROR", "获取上传签名失败", "请检查网络连接或 API Key 后重试")
+
     _request_log_as_curl(
         "GET",
         policy_url_full,
@@ -328,6 +330,8 @@ def upload_local_image(file_path: str) -> str:
             code = resp.getcode() or 200
             raw_policy = resp.read().decode()
             _request_log_response_json("policy_response_body", raw_policy, code)
+            if code < 200 or code >= 300:
+                _json_error(False, "UPLOAD_ERROR", "获取上传策略失败", "请检查网络连接后重试")
             arr = json.loads(raw_policy)
     except Exception as e:
         _json_error(False, "UPLOAD_ERROR", str(e), "获取上传策略失败，请检查网络")
@@ -499,7 +503,7 @@ def cmd_style_create(inp: Dict[str, Any]) -> None:
         ensure_ascii=False,
     ).encode()
 
-    url = _url("/mtlab/ai_text")
+    url = _url("/v1/mtlab/ai_text")
     code, resp = _http_request("POST", url, body)
     if code != 200:
         _json_error(
@@ -531,7 +535,7 @@ def cmd_style_poll(inp: Dict[str, Any]) -> None:
     deadline = time.time() + max_wait
 
     while time.time() < deadline:
-        url = _url("/mtlab/k2_query", {"task_id": task_id})
+        url = _url("/v1/mtlab/k2_query", {"task_id": task_id})
         code, resp = _http_request("GET", url)
         if code != 200:
             _json_error(
@@ -634,7 +638,7 @@ def cmd_render_submit(inp: Dict[str, Any]) -> None:
     if brand_style is not None:
         body_obj["brand_style"] = brand_style
     body = json.dumps(body_obj, ensure_ascii=False).encode()
-    url = _url("/hackathon/ai_product/task_submit", {"transfer_id": transfer_id})
+    url = _url("/v1/hackathon/ai_product/task_submit", {"transfer_id": transfer_id})
     code, resp = _http_request("POST", url, body)
     if code != 200:
         _json_error(
@@ -707,7 +711,7 @@ def cmd_render_poll(inp: Dict[str, Any]) -> None:
     last_done_count = 0
 
     while time.time() < deadline:
-        url = _url("/hackathon/query", {"batch_id": batch_id})
+        url = _url("/v1/hackathon/query", {"batch_id": batch_id})
         code, resp = _http_request("GET", url)
         if code != 200:
             _json_error(

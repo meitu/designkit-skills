@@ -13,7 +13,7 @@ AK="${DESIGNKIT_OPENCLAW_AK:-}"
 # 引导用户获取/核对 AK 的页面（Skill 与错误提示中与此一致）
 DESIGNKIT_OPENCLAW_AK_URL="${DESIGNKIT_OPENCLAW_AK_URL:-https://www.designkit.cn/openClaw}"
 API_BASE="${OPENCLAW_API_BASE:-https://openclaw-designkit-api.meitu.com}"
-POLICY_URL="https://strategy.app.meitudata.com/upload/policy"
+DESIGNKIT_WEBAPI_BASE="${DESIGNKIT_WEBAPI_BASE:-}"
 DEBUG="${OPENCLAW_DEBUG:-0}"
 # 测试阶段默认开启：所有对外 HTTP 请求/响应摘要打到 stderr；正式环境可设 OPENCLAW_REQUEST_LOG=0
 REQUEST_LOG="${OPENCLAW_REQUEST_LOG:-1}"
@@ -32,6 +32,18 @@ normalize_api_base_for_openclaw() {
   fi
 
   echo "$normalized"
+}
+
+normalize_webapi_base_for_maat() {
+  local base="${1:-}"
+  local normalized no_v1_suffix
+  if [ -z "$base" ]; then
+    base="$API_BASE"
+  fi
+  normalized="${base%/}"
+  no_v1_suffix="${normalized%/v1}"
+  no_v1_suffix="${no_v1_suffix%/v1/}"
+  echo "${no_v1_suffix%/}"
 }
 
 # ---------- 输出辅助 ----------
@@ -269,35 +281,80 @@ upload_image() {
 
   debug_log "上传文件: ${FILE_PATH} (suffix=${SUFFIX}, mime=${MIME})"
 
+  local WEBAPI_BASE_MAAT GETSIGN_URL GETSIGN_RESP GETSIGN_HTTP_CODE GETSIGN_BODY
+  local GETSIGN_CODE GETSIGN_MESSAGE POLICY_SIGNED_URL
+  WEBAPI_BASE_MAAT=$(normalize_webapi_base_for_maat "$DESIGNKIT_WEBAPI_BASE")
+  GETSIGN_URL="${WEBAPI_BASE_MAAT}/maat/getsign?type=openclaw"
+
   if [ "$REQUEST_LOG" != "0" ]; then
     python3 -c "
 import shlex, sys
-suffix = sys.argv[1]
+url = sys.argv[1]
+ak = sys.argv[2]
 parts = [
-    'curl', '-s', '--max-time', '30', '-G', 'https://strategy.app.meitudata.com/upload/policy',
-    '--data-urlencode', 'app=xiuxiu-pro',
-    '--data-urlencode', 'count=1',
-    '--data-urlencode', 'suffix=' + suffix,
-    '--data-urlencode', 'type=image_tmp',
-    '--data-urlencode', 't=1',
+    'curl', '-s', '--max-time', '30', '-X', 'GET',
+    '-H', 'Accept: application/json, text/plain, */*',
+    '-H', 'X-Openclaw-AK: ' + ak,
     '-H', 'Origin: https://www.designkit.cn',
     '-H', 'Referer: https://www.designkit.cn/editor/',
+    url,
 ]
 print('[REQUEST] ' + shlex.join(parts), file=__import__('sys').stderr)
-" "$SUFFIX"
+" "$GETSIGN_URL" "$AK"
   fi
-  local POLICY_RESP
-  POLICY_RESP=$(curl -s -G "$POLICY_URL" \
-    --data-urlencode "app=xiuxiu-pro" \
-    --data-urlencode "count=1" \
-    --data-urlencode "suffix=${SUFFIX}" \
-    --data-urlencode "type=image_tmp" \
-    --data-urlencode "t=1" \
+  GETSIGN_RESP=$(curl -s -w "\n%{http_code}" -X GET "$GETSIGN_URL" \
+    -H "Accept: application/json, text/plain, */*" \
+    -H "X-Openclaw-AK: ${AK}" \
     -H "Origin: https://www.designkit.cn" \
     -H "Referer: https://www.designkit.cn/editor/" \
     --max-time 30)
+  GETSIGN_HTTP_CODE=$(echo "$GETSIGN_RESP" | tail -n1)
+  GETSIGN_BODY=$(echo "$GETSIGN_RESP" | sed '$d')
+  printf '%s' "$GETSIGN_BODY" | request_log_response_json maat_getsign_response_body "$GETSIGN_HTTP_CODE"
 
-  printf '%s' "$POLICY_RESP" | request_log_response_json policy_response_body ""
+  if [ "$GETSIGN_HTTP_CODE" -lt 200 ] || [ "$GETSIGN_HTTP_CODE" -ge 300 ]; then
+    request_log "maat getsign failed with http=${GETSIGN_HTTP_CODE}"
+    json_error "UPLOAD_ERROR" "获取上传签名失败" "请检查网络连接或 API Key 后重试"
+    exit 1
+  fi
+
+  GETSIGN_CODE=$(echo "$GETSIGN_BODY" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('code',''))" 2>/dev/null)
+  GETSIGN_MESSAGE=$(echo "$GETSIGN_BODY" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('message',''))" 2>/dev/null)
+  POLICY_SIGNED_URL=$(echo "$GETSIGN_BODY" | python3 -c "import sys,json; d=json.load(sys.stdin); print((d.get('data') or {}).get('upload_url',''))" 2>/dev/null)
+
+  if [ "$GETSIGN_CODE" != "0" ] || [ -z "$POLICY_SIGNED_URL" ]; then
+    request_log "maat getsign rejected: code=${GETSIGN_CODE}, message=${GETSIGN_MESSAGE}"
+    json_error "UPLOAD_ERROR" "获取上传签名失败" "请检查网络连接或 API Key 后重试"
+    exit 1
+  fi
+
+  if [ "$REQUEST_LOG" != "0" ]; then
+    python3 -c "
+import shlex, sys
+url = sys.argv[1]
+parts = [
+    'curl', '-s', '--max-time', '30', '-X', 'GET',
+    '-H', 'Origin: https://www.designkit.cn',
+    '-H', 'Referer: https://www.designkit.cn/editor/',
+    url,
+]
+print('[REQUEST] ' + shlex.join(parts), file=__import__('sys').stderr)
+" "$POLICY_SIGNED_URL"
+  fi
+  local POLICY_RAW POLICY_HTTP_CODE POLICY_RESP
+  POLICY_RAW=$(curl -s -w "\n%{http_code}" "$POLICY_SIGNED_URL" \
+    -H "Origin: https://www.designkit.cn" \
+    -H "Referer: https://www.designkit.cn/editor/" \
+    --max-time 30)
+  POLICY_HTTP_CODE=$(echo "$POLICY_RAW" | tail -n1)
+  POLICY_RESP=$(echo "$POLICY_RAW" | sed '$d')
+
+  printf '%s' "$POLICY_RESP" | request_log_response_json policy_response_body "$POLICY_HTTP_CODE"
+  if [ "$POLICY_HTTP_CODE" -lt 200 ] || [ "$POLICY_HTTP_CODE" -ge 300 ]; then
+    request_log "policy request failed with http=${POLICY_HTTP_CODE}"
+    json_error "UPLOAD_ERROR" "获取上传策略失败" "请检查网络连接后重试"
+    exit 1
+  fi
 
   local PROVIDER
   PROVIDER=$(echo "$POLICY_RESP" | python3 -c "import sys,json; arr=json.load(sys.stdin); print(arr[0]['order'][0])" 2>/dev/null)

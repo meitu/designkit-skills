@@ -2,14 +2,14 @@
   "name": "designkit-skills",
   "version": "1.0.0",
   "author": "meitu",
-  "description": "美图设计室 DesignKit 能力集合。全部子 skill 调用接口时统一依赖 DESIGNKIT_OPENCLAW_AK（X-Openclaw-AK），勿为单 skill 另设默认鉴权。含 designkit-edit-tools、designkit-ecommerce-product-kit。",
+  "description": "AI 图片处理与电商商品图生成技能包（美图设计室 DesignKit）。支持抠图去背景、透明底、AI 变清晰/画质修复、商品主图与 Listing 套图生成。全部子 skill 统一依赖 DESIGNKIT_OPENCLAW_AK（X-Openclaw-AK）。",
   "license": "MIT",
   "entry": "SKILL.md",
-  "tags": ["image", "matting", "background-removal", "image-restoration", "ecommerce", "designkit", "meitu"],
+  "tags": ["image", "ai-image-editing", "matting", "background-removal", "remove-background", "image-restoration", "ecommerce", "listing-images", "product-images", "designkit", "meitu", "抠图", "去背景", "电商套图", "商品主图"],
   "models": ["claude-*", "gpt-*", "gemini-*"],
   "permissions": ["network", "filesystem", "shell"],
   "triggers": {
-    "keywords": ["抠图", "去背景", "背景移除", "matting", "画质修复", "变清晰", "图片增强", "image restoration", "生成电商套图", "电商套图", "商品套图", "爆款风格套图"]
+    "keywords": ["抠图", "去背景", "背景移除", "透明底", "白底图", "matting", "background removal", "画质修复", "变清晰", "图片增强", "超分", "image restoration", "生成电商套图", "电商套图", "商品套图", "商品主图", "listing套图", "listing主图", "亚马逊套图", "temu套图", "1688套图", "爆款风格套图", "designkit", "美图设计室"]
   },
   "config": {
     "DESIGNKIT_OPENCLAW_AK": {
