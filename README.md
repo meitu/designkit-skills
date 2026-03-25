@@ -1,4 +1,4 @@
-# design-kit-tool-skills
+# designkit-skills
 
 美图设计室 DesignKit 能力集合技能仓库，包含根路由与多个子技能（编辑、电商套图、商品图规划、试衣、视频、营销）。
 
