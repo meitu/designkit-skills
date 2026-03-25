@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate JSON
+        run: |
+          python3 -m json.tool api/commands.json >/dev/null
+          python3 -m json.tool claw.json >/dev/null
+          python3 -m json.tool .well-known/skills/index.json >/dev/null
+          python3 -m json.tool .well-known/agent-skills/index.json >/dev/null
+
+      - name: Check well-known artifacts
+        run: python3 scripts/build_well_known.py --check
+
+      - name: Run async command tests
+        run: bash tests/run_command_async_test.sh
+
+      - name: Validate well-known layout
+        run: python3 tests/well_known_layout_test.py

@@ -1,0 +1,36 @@
+{
+  "name": "designkit-skills",
+  "version": "1.0.0",
+  "author": "meitu",
+  "description": "美图设计室 DesignKit 能力集合。全部子 skill 调用接口时统一依赖 DESIGNKIT_OPENCLAW_AK（X-Openclaw-AK），勿为单 skill 另设默认鉴权。含 designkit-edit-tools、designkit-ecommerce-product-kit。",
+  "license": "MIT",
+  "entry": "SKILL.md",
+  "tags": ["image", "matting", "background-removal", "image-restoration", "ecommerce", "designkit", "meitu"],
+  "models": ["claude-*", "gpt-*", "gemini-*"],
+  "permissions": ["network", "filesystem", "shell"],
+  "triggers": {
+    "keywords": ["抠图", "去背景", "背景移除", "matting", "画质修复", "变清晰", "图片增强", "image restoration", "生成电商套图", "电商套图", "商品套图", "爆款风格套图"]
+  },
+  "config": {
+    "DESIGNKIT_OPENCLAW_AK": {
+      "type": "string",
+      "description": "全包唯一默认鉴权：OpenClaw/DesignKit API Access Key；在 DESIGNKIT_OPENCLAW_AK_URL 页面获取（默认 https://www.designkit.cn/openClaw）；所有子 skill 共用，勿再引入与 AK 平行的默认 token",
+      "required": true
+    },
+    "DESIGNKIT_OPENCLAW_AK_URL": {
+      "type": "string",
+      "description": "获取/核对 OpenClaw API Key 的页面 URL；脚本与 user_hint 中引导文案使用此值，未设置时默认为 https://www.designkit.cn/openClaw",
+      "required": false
+    }
+  },
+  "skills": {
+    "designkit-edit-tools": {
+      "entry": "skills/designkit-edit-tools/SKILL.md",
+      "status": "active"
+    },
+    "designkit-ecommerce-product-kit": {
+      "entry": "skills/designkit-ecommerce-product-kit/SKILL.md",
+      "status": "active"
+    }
+  }
+}

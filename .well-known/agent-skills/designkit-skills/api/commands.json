@@ -1,0 +1,132 @@
+{
+  "sod": {
+    "name": "智能抠图",
+    "description": "把图片主体从背景里抠出来，可用于商品图、人像图、Logo、宠物图等。",
+    "endpoint": "/openclaw/sod_2c_async",
+    "skill": "designkit-edit-tools",
+    "status": "active",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": [],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "rsp_media_type": "url",
+        "nMask": false,
+        "nbox": true,
+        "model_type": 1
+      },
+      "media_info_list": [
+        {
+          "media_data": "{{image}}",
+          "media_profiles": {
+            "media_data_type": "url"
+          }
+        }
+      ],
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要抠图的图片（本地路径或 URL）。"
+    },
+    "triggers": [
+      "抠图",
+      "去背景",
+      "扣图",
+      "移除背景",
+      "透明底",
+      "background removal",
+      "matting",
+      "cutout"
+    ]
+  },
+  "image_restoration": {
+    "name": "AI 变清晰",
+    "description": "提高图片清晰度，适合修复低清商品图、老图、压缩图。",
+    "endpoint": "/openclaw/image_restoration_async",
+    "skill": "designkit-edit-tools",
+    "status": "active",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": [],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "sr_mode": 1,
+        "ir_mode": 4,
+        "rsp_media_type": "url",
+        "max_width": 8000,
+        "max_height": 8000,
+        "sr_num": 4,
+        "save_photo_format": 1
+      },
+      "media_info_list": [
+        {
+          "media_data": "{{image}}",
+          "media_extra": {},
+          "media_profiles": {
+            "media_data_type": "url"
+          }
+        }
+      ],
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要变清晰的图片（本地路径或 URL）。"
+    },
+    "triggers": [
+      "变清晰",
+      "画质修复",
+      "图片增强",
+      "超分",
+      "提升画质",
+      "修复低清",
+      "image restoration"
+    ]
+  },
+  "ecommerce_product_kit_workflow": {
+    "name": "电商商品套图",
+    "description": "多步工作流：商品图 → 核心卖点 → 平台/国家/语言/尺寸 → 爆款风格（ai_text + k2_query）→ 生图（task_submit + hackathon/query）。执行：bash __SKILL_DIR__/scripts/run_ecommerce_kit.sh style_create|style_poll|render_submit|render_poll --input-json '...'（__SKILL_DIR__ 为仓库根）。详见 skills/designkit-ecommerce-product-kit/SKILL.md。",
+    "skill": "designkit-ecommerce-product-kit",
+    "status": "reserved",
+    "workflow": true,
+    "api_steps": {
+      "create_style_task": {
+        "method": "POST",
+        "url": "https://openclaw-designkit-api.meitu.com/v1/mtlab/ai_text",
+        "note": "创建爆款风格任务，请求体待 curl 补充"
+      },
+      "poll_style_result": {
+        "method": "POST",
+        "url": "https://openclaw-designkit-api.meitu.com/v1/mtlab/k2_query",
+        "note": "轮询爆款风格任务结果"
+      },
+      "create_render_task": {
+        "method": "POST",
+        "url": "https://openclaw-designkit-api.meitu.com/v1/hackathon/ai_product/task_submit",
+        "note": "创建商品套图生图任务，请求体待 curl 补充"
+      },
+      "poll_render_result": {
+        "method": "POST",
+        "url": "https://openclaw-designkit-api.meitu.com/v1/hackathon/query",
+        "note": "轮询生图结果"
+      }
+    },
+    "endpoint": "",
+    "required": [],
+    "optional": [],
+    "defaults": {},
+    "body_template": {},
+    "ask_if_missing": {},
+    "triggers": [
+      "生成电商套图",
+      "电商套图",
+      "商品套图",
+      "Listing套图",
+      "上架套图",
+      "爆款风格套图"
+    ]
+  }
+}

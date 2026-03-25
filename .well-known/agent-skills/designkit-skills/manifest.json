@@ -1,0 +1,18 @@
+{
+  "name": "designkit-skills",
+  "description": "美图设计室 DesignKit 能力集合根入口。路由到 edit/ecommerce/product/tryon/video/marketing 子能力，并统一使用 DESIGNKIT_OPENCLAW_AK。",
+  "files": [
+    "SKILL.md",
+    "api/commands.json",
+    "claw.json",
+    "scripts/ecommerce_product_kit.py",
+    "scripts/run_command.sh",
+    "scripts/run_ecommerce_kit.sh",
+    "skills/designkit-ecommerce-product-kit/SKILL.md",
+    "skills/designkit-edit-tools/SKILL.md",
+    "skills/designkit-marketing-kit/SKILL.md",
+    "skills/designkit-product-kit/SKILL.md",
+    "skills/designkit-tryon-kit/SKILL.md",
+    "skills/designkit-video-kit/SKILL.md"
+  ]
+}

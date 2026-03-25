@@ -1,0 +1,9 @@
+{
+  "name": "designkit-ecommerce-product-kit",
+  "description": "电商商品套图多步工作流：先收集卖点，再收集上架配置，随后进行风格与成图任务调用。",
+  "files": [
+    "SKILL.md",
+    "scripts/ecommerce_product_kit.py",
+    "scripts/run_ecommerce_kit.sh"
+  ]
+}

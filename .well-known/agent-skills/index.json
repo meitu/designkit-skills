@@ -1,0 +1,36 @@
+{
+  "skills": [
+    {
+      "name": "designkit-skills",
+      "description": "美图设计室 DesignKit 能力集合根入口。路由到 edit/ecommerce 子能力，并统一使用 DESIGNKIT_OPENCLAW_AK。",
+      "files": [
+        "SKILL.md",
+        "api/commands.json",
+        "claw.json",
+        "scripts/ecommerce_product_kit.py",
+        "scripts/run_command.sh",
+        "scripts/run_ecommerce_kit.sh",
+        "skills/designkit-ecommerce-product-kit/SKILL.md",
+        "skills/designkit-edit-tools/SKILL.md"
+      ]
+    },
+    {
+      "name": "designkit-edit-tools",
+      "description": "通用图片编辑：智能抠图（sod）与 AI 变清晰（image_restoration）。",
+      "files": [
+        "SKILL.md",
+        "api/commands.json",
+        "scripts/run_command.sh"
+      ]
+    },
+    {
+      "name": "designkit-ecommerce-product-kit",
+      "description": "电商商品套图多步工作流：先收集卖点，再收集上架配置，随后进行风格与成图任务调用。",
+      "files": [
+        "SKILL.md",
+        "scripts/ecommerce_product_kit.py",
+        "scripts/run_ecommerce_kit.sh"
+      ]
+    }
+  ]
+}

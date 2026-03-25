@@ -1,0 +1,9 @@
+{
+  "name": "designkit-edit-tools",
+  "description": "通用图片编辑：智能抠图（sod）与 AI 变清晰（image_restoration）。",
+  "files": [
+    "SKILL.md",
+    "api/commands.json",
+    "scripts/run_command.sh"
+  ]
+}
