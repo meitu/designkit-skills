@@ -1,6 +1,6 @@
 {
   "name": "designkit-edit-tools",
-  "description": "通用图片编辑：智能抠图（sod）与 AI 变清晰（image_restoration）。",
+  "description": "通用图片编辑：智能抠图（sod）与 AI 变清晰（image_restoration），其余编辑能力保留为预留态。",
   "files": [
     "SKILL.md",
     "api/commands.json",

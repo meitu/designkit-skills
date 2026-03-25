@@ -21,6 +21,19 @@ ASYNC_MAX_WAIT_SEC="${OPENCLAW_ASYNC_MAX_WAIT_SEC:-180}"
 ASYNC_INTERVAL_SEC="${OPENCLAW_ASYNC_INTERVAL_SEC:-2}"
 ASYNC_QUERY_ENDPOINT_DEFAULT="${OPENCLAW_ASYNC_QUERY_ENDPOINT:-/openclaw/mtlab/query}"
 
+normalize_api_base_for_openclaw() {
+  local base="${1:-}"
+  local endpoint="${2:-}"
+  local query_endpoint="${3:-}"
+  local normalized="${base%/}"
+
+  if [[ "$endpoint" == /openclaw/* || "$query_endpoint" == /openclaw/* ]]; then
+    normalized="${normalized%/v1}"
+  fi
+
+  echo "$normalized"
+}
+
 # ---------- 输出辅助 ----------
 json_output() {
   echo "$1"
@@ -184,6 +197,8 @@ QUERY_ENDPOINT=$(read_command_field "$ACTION" "query_endpoint")
 if [ -z "$QUERY_ENDPOINT" ]; then
   QUERY_ENDPOINT="$ASYNC_QUERY_ENDPOINT_DEFAULT"
 fi
+
+API_BASE_NORMALIZED="$(normalize_api_base_for_openclaw "$API_BASE" "$ENDPOINT" "$QUERY_ENDPOINT")"
 
 debug_log "Action: ${ACTION}, Endpoint: ${ENDPOINT}"
 
@@ -372,9 +387,9 @@ if [ -z "$BODY" ]; then
   exit 1
 fi
 
-debug_log "请求: POST ${API_BASE}${ENDPOINT}"
+debug_log "请求: POST ${API_BASE_NORMALIZED}${ENDPOINT}"
 debug_log "Body: ${BODY}"
-printf '%s' "$BODY" | request_log_openclaw_curl "${API_BASE}${ENDPOINT}"
+printf '%s' "$BODY" | request_log_openclaw_curl "${API_BASE_NORMALIZED}${ENDPOINT}"
 
 emit_http_error() {
   local action_name="$1"
@@ -518,7 +533,7 @@ print(json.dumps(out, ensure_ascii=False))
 }
 
 # ---------- 调用 OpenClaw API（提交任务） ----------
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE}${ENDPOINT}" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${API_BASE_NORMALIZED}${ENDPOINT}" \
   -H "Content-Type: application/json" \
   -H "X-Openclaw-AK: ${AK}" \
   -d "$BODY" \
@@ -569,7 +584,7 @@ print(max(1, int(math.ceil(max_wait / interval))))
     MAX_POLLS=90
   fi
 
-  QUERY_URL_BASE="${API_BASE}${QUERY_ENDPOINT}"
+  QUERY_URL_BASE="${API_BASE_NORMALIZED}${QUERY_ENDPOINT}"
   for ((i=1; i<=MAX_POLLS; i++)); do
     QUERY_URL="${QUERY_URL_BASE}?msg_id=${MSG_ID}"
     request_log "poll ${i}/${MAX_POLLS}: ${QUERY_URL}"

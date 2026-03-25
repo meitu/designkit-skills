@@ -31,8 +31,8 @@ PACKAGES: List[SkillPackage] = [
     SkillPackage(
         name="designkit-skills",
         description=(
-            "美图设计室 DesignKit 能力集合根入口。路由到 edit/ecommerce/product/"
-            "tryon/video/marketing 子能力，并统一使用 DESIGNKIT_OPENCLAW_AK。"
+            "美图设计室 DesignKit 能力集合根入口。路由到 edit/ecommerce 子能力，"
+            "并统一使用 DESIGNKIT_OPENCLAW_AK。"
         ),
         source_skill_md="SKILL.md",
         extra_files=[
@@ -43,10 +43,6 @@ PACKAGES: List[SkillPackage] = [
             "scripts/run_ecommerce_kit.sh",
             "skills/designkit-ecommerce-product-kit/SKILL.md",
             "skills/designkit-edit-tools/SKILL.md",
-            "skills/designkit-marketing-kit/SKILL.md",
-            "skills/designkit-product-kit/SKILL.md",
-            "skills/designkit-tryon-kit/SKILL.md",
-            "skills/designkit-video-kit/SKILL.md",
         ],
     ),
     SkillPackage(
@@ -76,30 +72,6 @@ PACKAGES: List[SkillPackage] = [
             "scripts/ecommerce_product_kit.py",
             "scripts/run_ecommerce_kit.sh",
         ],
-    ),
-    SkillPackage(
-        name="designkit-product-kit",
-        description="电商商品图生产能力规划（白底图、三视图、换背景、A+、SKU 等）。",
-        source_skill_md="skills/designkit-product-kit/SKILL.md",
-        extra_files=[],
-    ),
-    SkillPackage(
-        name="designkit-tryon-kit",
-        description="穿搭/换模特/换场景等试衣与模特展示能力规划。",
-        source_skill_md="skills/designkit-tryon-kit/SKILL.md",
-        extra_files=[],
-    ),
-    SkillPackage(
-        name="designkit-video-kit",
-        description="商品与营销视频能力规划（特写、360、广告、视频复刻）。",
-        source_skill_md="skills/designkit-video-kit/SKILL.md",
-        extra_files=[],
-    ),
-    SkillPackage(
-        name="designkit-marketing-kit",
-        description="营销内容能力规划（海报、小红书套图、改图中文字）。",
-        source_skill_md="skills/designkit-marketing-kit/SKILL.md",
-        extra_files=[],
     ),
 ]
 

@@ -19,8 +19,9 @@ SERVER_PID=$!
 sleep 1
 
 npx -y skills add "http://127.0.0.1:${PORT}" --list --full-depth >"$OUT_FILE"
-grep -q "Found 7 skills" "$OUT_FILE"
+grep -q "Found 3 skills" "$OUT_FILE"
 grep -q "designkit-skills" "$OUT_FILE"
 grep -q "designkit-edit-tools" "$OUT_FILE"
+grep -q "designkit-ecommerce-product-kit" "$OUT_FILE"
 
 echo "PASS: well-known URL smoke test"
