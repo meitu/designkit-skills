@@ -15,6 +15,11 @@ set -euo pipefail
 STATE_FILE="${FAKE_CURL_STATE_FILE:?}"
 ARGS="$*"
 
+if [[ "$ARGS" == *"/v1/openclaw/"* ]]; then
+  printf '%s\n404' '{"code":11001,"message":"unexpected v1 prefix for openclaw endpoint"}'
+  exit 0
+fi
+
 if [[ "$ARGS" == *"/openclaw/sod_2c_async"* ]]; then
   printf '%s\n200' '{"code":0,"message":"success","data":{"msg_id":"msg-sod-1"}}'
   exit 0
@@ -48,6 +53,7 @@ chmod +x "$FAKE_BIN/curl"
 assert_action() {
   local action="$1"
   local expected_msg_id="$2"
+  local api_base="${3:-}"
   local state_file="$TMP_DIR/state-$action.txt"
   : >"$state_file"
 
@@ -56,12 +62,13 @@ assert_action() {
     PATH="$FAKE_BIN:$PATH" \
       FAKE_CURL_STATE_FILE="$state_file" \
       DESIGNKIT_OPENCLAW_AK="test-ak" \
+      OPENCLAW_API_BASE="$api_base" \
       OPENCLAW_REQUEST_LOG=0 \
       OPENCLAW_ASYNC_MAX_WAIT_SEC=1 \
       OPENCLAW_ASYNC_INTERVAL_SEC=0.01 \
       bash "$ROOT_DIR/scripts/run_command.sh" "$action" --input-json '{"image":"https://example.com/input.jpg"}'
   )"; then
-    echo "[FAIL] $action should succeed, but command failed"
+    echo "[FAIL] $action should succeed, but command failed (OPENCLAW_API_BASE=${api_base:-<default>})"
     exit 1
   fi
 
@@ -83,5 +90,7 @@ PY
 
 assert_action "sod" "msg-sod-1"
 assert_action "image_restoration" "msg-ir-1"
+assert_action "sod" "msg-sod-1" "https://openclaw-designkit-api.meitu.com/v1"
+assert_action "image_restoration" "msg-ir-1" "https://openclaw-designkit-api.meitu.com/v1"
 
 echo "[PASS] run_command async flow tests passed"
