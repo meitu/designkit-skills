@@ -6,14 +6,14 @@ AI 图片处理、AI 消除与电商商品图生成技能包（美图设计室 D
 
 - 抠图去背景（透明底/白底图）
 - AI 变清晰（画质修复/模糊修复/图片增强）
-- AI 消除（水印、文字、路人、眼镜/眼镜反光）
+- AI 消除（水印、文字、路人、logo、眼镜、照片反光）
 - 电商商品套图（Listing 主图/详情图）
 
 ## Included Skills
 
 - `designkit-skills`（根路由）
 - `designkit-edit-tools`（图片编辑：抠图、变清晰）
-- `designkit-ai-eraser`（AI 消除：水印、文字、路人、眼镜/眼镜反光）
+- `designkit-ai-eraser`（AI 消除：水印、文字、路人、logo、眼镜、照片反光）
 - `designkit-ecommerce-product-kit`（电商套图多步工作流）
 
 ## Repository Structure

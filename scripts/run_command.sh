@@ -593,21 +593,24 @@ except json.JSONDecodeError:
     print('')
     raise SystemExit(0)
 
-msg_id = ''
-data = d.get('data')
-if isinstance(data, dict):
-    for key in ('msg_id', 'task_id', 'id'):
-        val = data.get(key)
-        if isinstance(val, str) and val:
-            msg_id = val
-            break
-if not msg_id:
-    for key in ('msg_id', 'task_id', 'id'):
-        val = d.get(key)
-        if isinstance(val, str) and val:
-            msg_id = val
-            break
-print(msg_id)
+def find_msg_id(obj):
+    if isinstance(obj, dict):
+        for key in ('msg_id', 'task_id', 'id'):
+            val = obj.get(key)
+            if isinstance(val, str) and val:
+                return val
+        for val in obj.values():
+            found = find_msg_id(val)
+            if found:
+                return found
+    elif isinstance(obj, list):
+        for item in obj:
+            found = find_msg_id(item)
+            if found:
+                return found
+    return ''
+
+print(find_msg_id(d))
 "
 }
 

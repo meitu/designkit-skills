@@ -127,8 +127,8 @@
     ]
   },
   "eraser_eyeglasses": {
-    "name": "AI 消除（眼镜/眼镜反光）",
-    "description": "去掉人物眼镜或镜片反光，支持一张或多张图片。",
+    "name": "AI 消除（眼镜）",
+    "description": "去掉人物眼镜，支持一张或多张图片。",
     "endpoint": "/openclaw/rmeyeglasses_async",
     "skill": "designkit-ai-eraser",
     "status": "active",
@@ -145,16 +145,13 @@
       "extra": {}
     },
     "ask_if_missing": {
-      "image": "请提供需要消除眼镜或眼镜反光的图片（支持一张或多张，本地路径或 URL）。"
+      "image": "请提供需要去掉眼镜的图片（支持一张或多张，本地路径或 URL）。"
     },
     "triggers": [
       "去眼镜",
       "去掉眼镜",
-      "眼镜反光",
-      "镜片反光",
-      "消除反光",
       "remove glasses",
-      "glare removal"
+      "remove eyeglasses"
     ]
   },
   "eraser_passerby": {
@@ -192,7 +189,7 @@
     "description": "去掉图片里的 logo 或标志内容。",
     "endpoint": "/openclaw/aigc_pcxx_logo_remove_flow",
     "skill": "designkit-ai-eraser",
-    "status": "reserved",
+    "status": "active",
     "response_mode": "async",
     "query_endpoint": "/openclaw/mtlab/query",
     "required": ["image"],
@@ -213,6 +210,37 @@
       "去标志",
       "消除logo",
       "移除logo"
+    ]
+  },
+  "eraser_reflection": {
+    "name": "AI 消除（照片反光）",
+    "description": "去掉照片中的反光、眩光等干扰内容。",
+    "endpoint": "/openclaw/aigc_anti_glare_flow",
+    "skill": "designkit-ai-eraser",
+    "status": "active",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": ["images"],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "rsp_media_type": "url"
+      },
+      "media_info_list": "{{media_info_list}}",
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要消除照片反光的图片（支持一张或多张，本地路径或 URL）。"
+    },
+    "triggers": [
+      "照片反光",
+      "去反光",
+      "消除反光",
+      "去掉反光",
+      "镜面反光",
+      "remove glare",
+      "reflection removal"
     ]
   },
   "ecommerce_product_kit_workflow": {
