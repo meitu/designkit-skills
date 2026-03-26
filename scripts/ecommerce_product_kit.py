@@ -23,10 +23,16 @@ import urllib.parse
 import urllib.request
 from typing import Any, Dict, List, Optional, Tuple
 
-# 可通过 DESIGNKIT_WEBAPI_BASE 覆盖；仅域名，不自动拼版本前缀，具体 path 在各接口调用处定义
+def _resolve_default_webapi_base() -> str:
+    env = (os.environ.get("DESIGNKIT_ENV", "beta") or "beta").strip().lower()
+    if env in ("prod", "production"):
+        return "https://openclaw-designkit-api.meitu.com"
+    return "https://betaopenclaw-designkit-api.meitu.com"
+
+
 _webapi_base_raw = os.environ.get(
     "DESIGNKIT_WEBAPI_BASE",
-    "https://openclaw-designkit-api.meitu.com",
+    _resolve_default_webapi_base(),
 ).rstrip("/")
 WEBAPI_BASE = re.sub(r"/v1/?$", "", _webapi_base_raw)
 

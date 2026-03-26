@@ -12,7 +12,23 @@ COMMANDS_FILE="$PROJECT_ROOT/api/commands.json"
 AK="${DESIGNKIT_OPENCLAW_AK:-}"
 # 引导用户获取/核对 AK 的页面（Skill 与错误提示中与此一致）
 DESIGNKIT_OPENCLAW_AK_URL="${DESIGNKIT_OPENCLAW_AK_URL:-https://www.designkit.cn/openclaw}"
-API_BASE="${OPENCLAW_API_BASE:-https://openclaw-designkit-api.meitu.com}"
+DESIGNKIT_ENV="${DESIGNKIT_ENV:-beta}"
+
+resolve_default_api_base() {
+  case "${1:-beta}" in
+    beta)
+      echo "https://betaopenclaw-designkit-api.meitu.com"
+      ;;
+    prod|production)
+      echo "https://openclaw-designkit-api.meitu.com"
+      ;;
+    *)
+      echo "https://betaopenclaw-designkit-api.meitu.com"
+      ;;
+  esac
+}
+
+API_BASE="${OPENCLAW_API_BASE:-$(resolve_default_api_base "$DESIGNKIT_ENV")}"
 DESIGNKIT_WEBAPI_BASE="${DESIGNKIT_WEBAPI_BASE:-}"
 DEBUG="${OPENCLAW_DEBUG:-0}"
 # 测试阶段默认开启：所有对外 HTTP 请求/响应摘要打到 stderr；正式环境可设 OPENCLAW_REQUEST_LOG=0
