@@ -11,7 +11,7 @@ COMMANDS_FILE="$PROJECT_ROOT/api/commands.json"
 
 AK="${DESIGNKIT_OPENCLAW_AK:-}"
 # 引导用户获取/核对 AK 的页面（Skill 与错误提示中与此一致）
-DESIGNKIT_OPENCLAW_AK_URL="${DESIGNKIT_OPENCLAW_AK_URL:-https://www.designkit.cn/openClaw}"
+DESIGNKIT_OPENCLAW_AK_URL="${DESIGNKIT_OPENCLAW_AK_URL:-https://www.designkit.cn/openclaw}"
 API_BASE="${OPENCLAW_API_BASE:-https://openclaw-designkit-api.meitu.com}"
 DESIGNKIT_WEBAPI_BASE="${DESIGNKIT_WEBAPI_BASE:-}"
 DEBUG="${OPENCLAW_DEBUG:-0}"
@@ -221,27 +221,6 @@ if [ -z "$INPUT_JSON" ]; then
   exit 1
 fi
 
-IMAGE_INPUT=$(python3 -c "
-import sys, json
-try:
-    d = json.loads('''${INPUT_JSON}''')
-    print(d.get('image', ''))
-except:
-    print('')
-" 2>/dev/null)
-
-if [ -z "$IMAGE_INPUT" ]; then
-  ASK_MSG=$(python3 -c "
-import json
-with open('${COMMANDS_FILE}') as f:
-    cmds = json.load(f)
-ask = cmds.get('${ACTION}', {}).get('ask_if_missing', {})
-print(ask.get('image', '请提供图片'))
-" 2>/dev/null)
-  json_error "PARAM_ERROR" "缺少必填参数: image" "$ASK_MSG"
-  exit 1
-fi
-
 # ---------- 推断文件后缀 & MIME ----------
 get_suffix() {
   local ext
@@ -418,26 +397,116 @@ print('[REQUEST] ' + shlex.join(parts), file=__import__('sys').stderr)
   echo "$CDN_URL"
 }
 
-# ---------- 确定图片 URL ----------
-IMAGE_URL=""
-if echo "$IMAGE_INPUT" | grep -qE '^https?://'; then
-  IMAGE_URL="$IMAGE_INPUT"
-else
-  IMAGE_URL=$(upload_image "$IMAGE_INPUT")
+# ---------- 解析输入图片（支持 image / images） ----------
+IMAGE_INPUTS_RAW=$(python3 -c "
+import json, sys
+try:
+    data = json.loads(sys.argv[1])
+except Exception:
+    print('')
+    raise SystemExit(0)
+
+images = []
+raw_images = data.get('images')
+if isinstance(raw_images, list):
+    for item in raw_images:
+        if isinstance(item, str) and item.strip():
+            images.append(item.strip())
+
+single = data.get('image')
+if isinstance(single, str) and single.strip():
+    if not images:
+        images.append(single.strip())
+
+print('\n'.join(images))
+" "$INPUT_JSON" 2>/dev/null)
+
+if [ -z "$IMAGE_INPUTS_RAW" ]; then
+  ASK_MSG=$(python3 -c "
+import json, sys
+with open(sys.argv[1]) as f:
+    cmds = json.load(f)
+ask = cmds.get(sys.argv[2], {}).get('ask_if_missing', {})
+print(ask.get('image') or ask.get('images') or '请提供需要处理的图片（本地路径或 URL）。')
+" "$COMMANDS_FILE" "$ACTION" 2>/dev/null)
+  json_error "PARAM_ERROR" "缺少必填参数: image/images" "$ASK_MSG"
+  exit 1
 fi
+
+# ---------- 确定图片 URL ----------
+IMAGE_URLS=()
+while IFS= read -r image_input; do
+  [ -z "$image_input" ] && continue
+  if echo "$image_input" | grep -qE '^https?://'; then
+    IMAGE_URLS+=("$image_input")
+  else
+    IMAGE_URLS+=("$(upload_image "$image_input")")
+  fi
+done <<EOF
+$IMAGE_INPUTS_RAW
+EOF
+
+if [ "${#IMAGE_URLS[@]}" -eq 0 ]; then
+  json_error "PARAM_ERROR" "未解析到可用图片" "请提供图片 URL、本地路径，或 images 数组"
+  exit 1
+fi
+
+IMAGE_URLS_JSON=$(printf '%s\n' "${IMAGE_URLS[@]}" | python3 -c "
+import json, sys
+urls = [line.strip() for line in sys.stdin if line.strip()]
+print(json.dumps(urls, ensure_ascii=False))
+")
+
+FIRST_IMAGE_URL="${IMAGE_URLS[0]}"
 
 # ---------- 用模板构造请求体 ----------
 BODY=$(python3 -c "
-import json, sys
+import json, re, sys
 
-with open('${COMMANDS_FILE}') as f:
+commands_file, action, raw_input_json, raw_image_urls = sys.argv[1:5]
+with open(commands_file) as f:
     cmds = json.load(f)
 
-template = cmds['${ACTION}']['body_template']
-body_str = json.dumps(template)
-body_str = body_str.replace('{{image}}', '${IMAGE_URL}')
-print(body_str)
-" 2>/dev/null)
+template = cmds[action]['body_template']
+input_data = json.loads(raw_input_json)
+image_urls = json.loads(raw_image_urls)
+media_info_list = [
+    {
+        'media_data': url,
+        'media_profiles': {'media_data_type': 'url'},
+    }
+    for url in image_urls
+]
+
+params = dict(input_data) if isinstance(input_data, dict) else {}
+params['image'] = image_urls[0]
+params['images'] = image_urls
+params['media_info_list'] = media_info_list
+
+placeholder_pattern = re.compile(r'\\{\\{([a-zA-Z0-9_]+)\\}\\}')
+
+def replace_obj(obj):
+    if isinstance(obj, str):
+        m = placeholder_pattern.fullmatch(obj)
+        if m:
+            return params.get(m.group(1), obj)
+        def repl(match):
+            key = match.group(1)
+            value = params.get(key)
+            if value is None:
+                return match.group(0)
+            if isinstance(value, (dict, list)):
+                return json.dumps(value, ensure_ascii=False)
+            return str(value)
+        return placeholder_pattern.sub(repl, obj)
+    if isinstance(obj, list):
+        return [replace_obj(item) for item in obj]
+    if isinstance(obj, dict):
+        return {key: replace_obj(value) for key, value in obj.items()}
+    return obj
+
+print(json.dumps(replace_obj(template), ensure_ascii=False))
+" "$COMMANDS_FILE" "$ACTION" "$INPUT_JSON" "$IMAGE_URLS_JSON" 2>/dev/null)
 
 if [ -z "$BODY" ]; then
   json_error "RUNTIME_ERROR" "构造请求体失败" "请检查 api/commands.json 中的 body_template 配置"
@@ -552,12 +621,28 @@ except json.JSONDecodeError:
     raise SystemExit(0)
 
 urls = []
-data = d.get('data') if isinstance(d.get('data'), dict) else {}
-for item in data.get('media_info_list') or []:
-    if isinstance(item, dict):
-        url = item.get('media_data')
-        if isinstance(url, str) and url:
-            urls.append(url)
+seen = set()
+
+def collect(obj):
+    if isinstance(obj, str):
+        if obj.startswith(('http://', 'https://')) and obj not in seen:
+            seen.add(obj)
+            urls.append(obj)
+        return
+    if isinstance(obj, list):
+        for item in obj:
+            collect(item)
+        return
+    if isinstance(obj, dict):
+        for key in ('media_data', 'url', 'media_url', 'image_url', 'src', 'res_img'):
+            val = obj.get(key)
+            if isinstance(val, str) and val.startswith(('http://', 'https://')) and val not in seen:
+                seen.add(val)
+                urls.append(val)
+        for val in obj.values():
+            collect(val)
+
+collect(d.get('data', d))
 print(json.dumps(urls, ensure_ascii=False))
 "
 }

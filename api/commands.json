@@ -93,6 +93,128 @@
       "image restoration"
     ]
   },
+  "eraser_watermark_text": {
+    "name": "AI 消除（水印/文字）",
+    "description": "去掉图片里的水印、文字等不需要内容，支持一张或多张图片。",
+    "endpoint": "/openclaw/eraser_watermark_v2_async",
+    "skill": "designkit-ai-eraser",
+    "status": "active",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": ["images"],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "rsp_media_type": "url"
+      },
+      "media_info_list": "{{media_info_list}}",
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要消除的图片（支持一张或多张，本地路径或 URL）。"
+    },
+    "triggers": [
+      "消除水印",
+      "去水印",
+      "去文字",
+      "删除文字",
+      "移除文字",
+      "擦除文字",
+      "擦掉字",
+      "watermark removal",
+      "text removal"
+    ]
+  },
+  "eraser_eyeglasses": {
+    "name": "AI 消除（眼镜/眼镜反光）",
+    "description": "去掉人物眼镜或镜片反光，支持一张或多张图片。",
+    "endpoint": "/openclaw/rmeyeglasses_async",
+    "skill": "designkit-ai-eraser",
+    "status": "active",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": ["images"],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "rsp_media_type": "url"
+      },
+      "media_info_list": "{{media_info_list}}",
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要消除眼镜或眼镜反光的图片（支持一张或多张，本地路径或 URL）。"
+    },
+    "triggers": [
+      "去眼镜",
+      "去掉眼镜",
+      "眼镜反光",
+      "镜片反光",
+      "消除反光",
+      "remove glasses",
+      "glare removal"
+    ]
+  },
+  "eraser_passerby": {
+    "name": "AI 消除（路人）",
+    "description": "去掉图片里的路人、行人等干扰人物，支持一张或多张图片。",
+    "endpoint": "/openclaw/aigc_pcxx_passerby_remove_flow",
+    "skill": "designkit-ai-eraser",
+    "status": "active",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": ["images"],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "rsp_media_type": "url"
+      },
+      "media_info_list": "{{media_info_list}}",
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要去掉路人的图片（支持一张或多张，本地路径或 URL）。"
+    },
+    "triggers": [
+      "去路人",
+      "消除路人",
+      "移除路人",
+      "去掉路人",
+      "删除路人",
+      "remove passerby"
+    ]
+  },
+  "eraser_logo": {
+    "name": "AI 消除（Logo）",
+    "description": "去掉图片里的 logo 或标志内容。",
+    "endpoint": "/openclaw/aigc_pcxx_logo_remove_flow",
+    "skill": "designkit-ai-eraser",
+    "status": "reserved",
+    "response_mode": "async",
+    "query_endpoint": "/openclaw/mtlab/query",
+    "required": ["image"],
+    "optional": ["images"],
+    "defaults": {},
+    "body_template": {
+      "parameter": {
+        "rsp_media_type": "url"
+      },
+      "media_info_list": "{{media_info_list}}",
+      "extra": {}
+    },
+    "ask_if_missing": {
+      "image": "请提供需要去掉 logo 的图片（支持一张或多张，本地路径或 URL）。"
+    },
+    "triggers": [
+      "去logo",
+      "去标志",
+      "消除logo",
+      "移除logo"
+    ]
+  },
   "ecommerce_product_kit_workflow": {
     "name": "电商商品套图",
     "description": "多步工作流：商品图 → 核心卖点 → 平台/国家/语言/尺寸 → 爆款风格（ai_text + k2_query）→ 生图（task_submit + hackathon/query）。执行：bash __SKILL_DIR__/scripts/run_ecommerce_kit.sh style_create|style_poll|render_submit|render_poll --input-json '...'（__SKILL_DIR__ 为仓库根）。详见 skills/designkit-ecommerce-product-kit/SKILL.md。",

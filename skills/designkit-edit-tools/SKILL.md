@@ -96,4 +96,5 @@ bash __SKILL_DIR__/../../scripts/run_command.sh image_restoration --input-json '
 
 | 不做 | 转交 |
 |------|------|
+| 消除水印、去字、去路人、去眼镜反光等 AI 消除 | `designkit-ai-eraser` |
 | 生成电商套图、电商套图、爆款风格套图等多步套图 | `designkit-ecommerce-product-kit` |

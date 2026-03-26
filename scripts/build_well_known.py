@@ -31,7 +31,7 @@ PACKAGES: List[SkillPackage] = [
     SkillPackage(
         name="designkit-skills",
         description=(
-            "美图设计室 DesignKit 能力集合根入口。路由到 edit/ecommerce 子能力，"
+            "美图设计室 DesignKit 能力集合根入口。路由到 edit/eraser/ecommerce 子能力，"
             "并统一使用 DESIGNKIT_OPENCLAW_AK。"
         ),
         source_skill_md="SKILL.md",
@@ -41,6 +41,7 @@ PACKAGES: List[SkillPackage] = [
             "scripts/ecommerce_product_kit.py",
             "scripts/run_command.sh",
             "scripts/run_ecommerce_kit.sh",
+            "skills/designkit-ai-eraser/SKILL.md",
             "skills/designkit-ecommerce-product-kit/SKILL.md",
             "skills/designkit-edit-tools/SKILL.md",
         ],
@@ -52,6 +53,21 @@ PACKAGES: List[SkillPackage] = [
             "其余编辑能力保留为预留态。"
         ),
         source_skill_md="skills/designkit-edit-tools/SKILL.md",
+        extra_files=[
+            "api/commands.json",
+            "scripts/run_command.sh",
+        ],
+        replacements={
+            "__SKILL_DIR__/../../api/commands.json": "__SKILL_DIR__/api/commands.json",
+            "__SKILL_DIR__/../../scripts/run_command.sh": "__SKILL_DIR__/scripts/run_command.sh",
+        },
+    ),
+    SkillPackage(
+        name="designkit-ai-eraser",
+        description=(
+            "AI 消除：去水印、去字、去路人、去眼镜或眼镜反光；其余消除类型保留为预留态。"
+        ),
+        source_skill_md="skills/designkit-ai-eraser/SKILL.md",
         extra_files=[
             "api/commands.json",
             "scripts/run_command.sh",
