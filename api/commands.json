@@ -102,14 +102,19 @@
     "response_mode": "async",
     "query_endpoint": "/openclaw/mtlab/query",
     "required": ["image"],
-    "optional": ["images"],
+    "optional": ["images", "parameter"],
     "defaults": {},
     "body_template": {
-      "parameter": {
-        "rsp_media_type": "url"
-      },
       "media_info_list": "{{media_info_list}}",
-      "extra": {}
+      "parameter": {
+        "automatic": false,
+        "requester": "design_studio",
+        "target": "watermark",
+        "dilated": true,
+        "rsp_media_type": "png",
+        "rgb_mask": true,
+        "return_translucent": true
+      }
     },
     "ask_if_missing": {
       "image": "请提供需要消除的图片（支持一张或多张，本地路径或 URL）。"
@@ -138,11 +143,12 @@
     "optional": ["images"],
     "defaults": {},
     "body_template": {
-      "parameter": {
-        "rsp_media_type": "url"
-      },
       "media_info_list": "{{media_info_list}}",
-      "extra": {}
+      "parameter": {
+        "rsp_media_type": "url",
+        "rm_mode": 1,
+        "photo_format": 2
+      }
     },
     "ask_if_missing": {
       "image": "请提供需要去掉眼镜的图片（支持一张或多张，本地路径或 URL）。"
@@ -166,11 +172,11 @@
     "optional": ["images"],
     "defaults": {},
     "body_template": {
-      "parameter": {
-        "rsp_media_type": "url"
-      },
       "media_info_list": "{{media_info_list}}",
-      "extra": {}
+      "parameter": {
+        "rsp_media_type": "url",
+        "xx": 1
+      }
     },
     "ask_if_missing": {
       "image": "请提供需要去掉路人的图片（支持一张或多张，本地路径或 URL）。"
@@ -224,11 +230,8 @@
     "optional": ["images"],
     "defaults": {},
     "body_template": {
-      "parameter": {
-        "rsp_media_type": "url"
-      },
-      "media_info_list": "{{media_info_list}}",
-      "extra": {}
+      "init_images": "{{init_images}}",
+      "params": ""
     },
     "ask_if_missing": {
       "image": "请提供需要消除照片反光的图片（支持一张或多张，本地路径或 URL）。"

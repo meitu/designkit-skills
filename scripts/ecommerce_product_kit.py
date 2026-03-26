@@ -220,7 +220,7 @@ def _require_ak() -> str:
             False,
             "CREDENTIALS_MISSING",
             "缺少 DESIGNKIT_OPENCLAW_AK",
-            f"请先前往 {_openclaw_ak_url()} 获取 API Key，然后执行: export DESIGNKIT_OPENCLAW_AK=你的AK",
+            f"请先前往 {_openclaw_ak_url()} 获取 API Key，然后执行: export DESIGNKIT_OPENCLAW_AK='你的AK'",
         )
     return ak
 

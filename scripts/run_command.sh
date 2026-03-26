@@ -169,7 +169,7 @@ done
 if [ -z "$AK" ]; then
   json_error "CREDENTIALS_MISSING" \
     "DESIGNKIT_OPENCLAW_AK 环境变量未设置" \
-    "请先前往 ${DESIGNKIT_OPENCLAW_AK_URL} 获取 API Key，然后执行: export DESIGNKIT_OPENCLAW_AK=你的AK"
+    "请先前往 ${DESIGNKIT_OPENCLAW_AK_URL} 获取 API Key，然后执行: export DESIGNKIT_OPENCLAW_AK='你的AK'"
   exit 1
 fi
 
@@ -498,6 +498,7 @@ params = dict(input_data) if isinstance(input_data, dict) else {}
 params['image'] = image_urls[0]
 params['images'] = image_urls
 params['media_info_list'] = media_info_list
+params['init_images'] = [{'url': url} for url in image_urls]
 
 placeholder_pattern = re.compile(r'\\{\\{([a-zA-Z0-9_]+)\\}\\}')
 
@@ -521,7 +522,15 @@ def replace_obj(obj):
         return {key: replace_obj(value) for key, value in obj.items()}
     return obj
 
-print(json.dumps(replace_obj(template), ensure_ascii=False))
+body = replace_obj(template)
+if isinstance(input_data, dict):
+    param_ov = input_data.get('parameter')
+    if isinstance(param_ov, dict) and isinstance(body.get('parameter'), dict):
+        merged = dict(body['parameter'])
+        merged.update(param_ov)
+        body['parameter'] = merged
+
+print(json.dumps(body, ensure_ascii=False))
 " "$COMMANDS_FILE" "$ACTION" "$INPUT_JSON" "$IMAGE_URLS_JSON" 2>/dev/null)
 
 if [ -z "$BODY" ]; then
