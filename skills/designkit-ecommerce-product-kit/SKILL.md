@@ -43,11 +43,28 @@ version: "1.8.0"
      2. 用返回的 `task_id` 轮询：`bash __SKILL_DIR__/scripts/run_ecommerce_kit.sh style_poll --input-json '{"task_id":"..."}'`（可按需带 `max_wait_sec` / `interval_sec`）
    - **禁止**自行编造风格，只展示接口返回的方案。请用户**选定其中一套**，选定后须使用**接口返回的该套完整结构**（如 `brand_style` 对象），不得手写替换。
    - 用户看到方案后选择「跳过」「自动」「你定」等：`render_submit` 不传 `brand_style`，由服务端自动匹配风格。
-5. **成图**：
+5. **成图 + 自动下载**：
    - 调用 `render_submit` / `render_poll` 生成成品图（无 `brand_style` 时省略该字段，服务端自动选择风格）
    - `render_submit` 的比例参数优先读取 `aspect_ratio`，同时兼容 `ratio`
    - 轮询期间根据 stderr 输出的 `[PROGRESS]` 信息向用户报告进度（如"已完成 3/7 张"）
-   - 完成后以 Markdown 图片格式展示 `media_urls` 中的结果图
+   - 完成后**自动下载**所有成品图到工作目录，命名规则：`{商品名}_{序号}_{label}.jpg`（label 从接口返回的 `items[].label` 取）
+   - 以 Markdown 图片格式展示结果，并告知文件保存位置
    - **换风格重跑**：如果用户看完成图后想换另一套风格，此时再调用 `style_create` 获取风格方案供用户选择，选定后跳到 `render_submit` 步骤重新出图。
 
-**顺序硬约束**：商品图 → **卖点+风格偏好（一轮）** → **用户回复** → **上架配置（一轮，或快速通道跳过）** → **用户回复** → **爆款风格（仅用户表达了风格兴趣时才进入，否则跳过）** → **成图**。
+## 输出目录规则
+
+`render_poll` 完成后会自动下载生成结果，输出目录按以下优先级解析：
+
+1. `input-json` 中显式传入的 `output_dir`
+2. 环境变量 `DESIGNKIT_OUTPUT_DIR`
+3. 当前工作目录存在 `openclaw.yaml` 时，使用 `./output/`
+4. 若 `{OPENCLAW_HOME}/workspace/visual`（或 `~/.openclaw/workspace/visual`）存在，使用其下的 `output/designkit-ecommerce-product-kit/`
+5. 否则回退到 `~/Downloads/`
+
+约束：
+
+- 输出目录**不能位于当前 skill 仓库内部**
+- 脚本会自动 `mkdir -p`
+- `render_poll` 的 JSON 输出会额外包含 `output_dir` 和 `local_paths`
+
+**顺序硬约束**：商品图 → **卖点+风格偏好（一轮）** → **用户回复** → **上架配置（一轮，或快速通道跳过）** → **用户回复** → **爆款风格（仅用户表达了风格兴趣时才进入，否则跳过）** → **成图+自动下载**。
