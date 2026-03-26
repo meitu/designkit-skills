@@ -11,7 +11,7 @@ COMMANDS_FILE="$PROJECT_ROOT/api/commands.json"
 
 AK="${DESIGNKIT_OPENCLAW_AK:-}"
 # 引导用户获取/核对 AK 的页面（Skill 与错误提示中与此一致）
-DESIGNKIT_OPENCLAW_AK_URL="${DESIGNKIT_OPENCLAW_AK_URL:-https://www.designkit.cn/openClaw}"
+DESIGNKIT_OPENCLAW_AK_URL="${DESIGNKIT_OPENCLAW_AK_URL:-https://www.designkit.cn/openclaw}"
 API_BASE="${OPENCLAW_API_BASE:-https://openclaw-designkit-api.meitu.com}"
 DESIGNKIT_WEBAPI_BASE="${DESIGNKIT_WEBAPI_BASE:-}"
 DEBUG="${OPENCLAW_DEBUG:-0}"
