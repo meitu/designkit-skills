@@ -4,7 +4,7 @@ DesignKit 电商套图 — webapi 基址默认正式环境，鉴权与 run_comma
 
 环境变量：
 - DESIGNKIT_OPENCLAW_AK：请求头 X-Openclaw-AK（必填）
-- DESIGNKIT_OPENCLAW_AK_URL：获取/核对 AK 的页面地址，默认 https://www.designkit.cn/openClaw（用于错误提示文案）
+- DESIGNKIT_OPENCLAW_AK_URL：获取/核对 AK 的页面地址，默认 https://www.designkit.cn/openclaw（用于错误提示文案）
 - DESIGNKIT_WEBAPI_BASE：仅域名基址（不含版本前缀）；默认 https://openclaw-designkit-api.meitu.com，具体 path 跟随各接口定义
 """
 from __future__ import annotations
@@ -30,7 +30,7 @@ _webapi_base_raw = os.environ.get(
 ).rstrip("/")
 WEBAPI_BASE = re.sub(r"/v1/?$", "", _webapi_base_raw)
 
-DEFAULT_OPENCLAW_AK_URL = "https://www.designkit.cn/openClaw"
+DEFAULT_OPENCLAW_AK_URL = "https://www.designkit.cn/openclaw"
 
 
 def _openclaw_ak_url() -> str:

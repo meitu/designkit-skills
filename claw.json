@@ -14,12 +14,12 @@
   "config": {
     "DESIGNKIT_OPENCLAW_AK": {
       "type": "string",
-      "description": "全包唯一默认鉴权：OpenClaw/DesignKit API Access Key；在 DESIGNKIT_OPENCLAW_AK_URL 页面获取（默认 https://www.designkit.cn/openClaw）；所有子 skill 共用，勿再引入与 AK 平行的默认 token",
+      "description": "全包唯一默认鉴权：OpenClaw/DesignKit API Access Key；在 DESIGNKIT_OPENCLAW_AK_URL 页面获取（默认 https://www.designkit.cn/openclaw）；所有子 skill 共用，勿再引入与 AK 平行的默认 token",
       "required": true
     },
     "DESIGNKIT_OPENCLAW_AK_URL": {
       "type": "string",
-      "description": "获取/核对 OpenClaw API Key 的页面 URL；脚本与 user_hint 中引导文案使用此值，未设置时默认为 https://www.designkit.cn/openClaw",
+      "description": "获取/核对 OpenClaw API Key 的页面 URL；脚本与 user_hint 中引导文案使用此值，未设置时默认为 https://www.designkit.cn/openclaw",
       "required": false
     }
   },
