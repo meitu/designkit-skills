@@ -45,6 +45,7 @@ version: "1.8.0"
    - 用户看到方案后选择「跳过」「自动」「你定」等：`render_submit` 不传 `brand_style`，由服务端自动匹配风格。
 5. **成图**：
    - 调用 `render_submit` / `render_poll` 生成成品图（无 `brand_style` 时省略该字段，服务端自动选择风格）
+   - `render_submit` 的比例参数优先读取 `aspect_ratio`，同时兼容 `ratio`
    - 轮询期间根据 stderr 输出的 `[PROGRESS]` 信息向用户报告进度（如"已完成 3/7 张"）
    - 完成后以 Markdown 图片格式展示 `media_urls` 中的结果图
    - **换风格重跑**：如果用户看完成图后想换另一套风格，此时再调用 `style_create` 获取风格方案供用户选择，选定后跳到 `render_submit` 步骤重新出图。
