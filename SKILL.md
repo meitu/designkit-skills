@@ -47,8 +47,28 @@ requirements:
 采用问答式交互，而非命令行式。整体流程如下：
 
 ```
-意图识别 → 参数补齐（追问） → 确认执行 → 调用 API → 交付结果
+凭证检查 → 意图识别 → 参数补齐（追问） → 确认执行 → 调用 API → 交付结果
 ```
+
+### Step 0：凭证检查（首次触发时执行一次）
+
+在进入意图识别之前，先检查环境变量 `DESIGNKIT_OPENCLAW_AK` 是否已设置：
+
+```bash
+echo "${DESIGNKIT_OPENCLAW_AK:+ok}"
+```
+
+- 输出 `ok` → 进入 Step 1
+- 输出为空 → 停止流程，直接告知用户：
+
+> 使用 DesignKit 需要先配置 API Key。请按以下步骤操作：
+>
+> 1. 前往 [DesignKit OpenClaw](https://www.designkit.cn/openclaw) 获取你的 API Key
+> 2. 在终端执行：`export DESIGNKIT_OPENCLAW_AK=你的AK`
+>
+> 配置好后再告诉我，我继续帮你处理。
+
+此检查仅在当前会话首次触发 skill 时执行一次，通过后后续调用不再重复检查。
 
 ### Step 1：意图识别
 
